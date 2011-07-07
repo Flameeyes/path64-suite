@@ -1,0 +1,20 @@
+test_name=$1
+compiler=$2
+source=$3
+
+if ${CMAKE_BINARY_DIR}/Xcompiler/bin/$compiler -o ${CMAKE_CURRENT_BINARY_DIR}/$test_name.exe ${PATH64_COMPILER_SOURCE}/bootstrap/$source ${HOST_TARG_FLAGS}; then
+    if ${CMAKE_CURRENT_BINARY_DIR}/$test_name.exe > ${CMAKE_CURRENT_BINARY_DIR}/$test_name.log 2>&1; then
+        if diff ${CMAKE_CURRENT_BINARY_DIR}/$test_name.log ${PATH64_COMPILER_SOURCE}/bootstrap/$test_name.log; then
+            echo PASSED
+            exit 0
+        fi
+        echo DIFF FAILED
+        exit 3
+    fi
+    echo RUN FAILED
+    exit 2
+fi
+
+echo COMPILE FAILED
+exit 1
+

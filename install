@@ -1,0 +1,13 @@
+#! /bin/sh
+
+set -e
+
+curdir=`pwd`
+base=$(cd $(dirname $0) && pwd)
+src=$base
+
+$base/update
+$base/configure
+make
+make install
+

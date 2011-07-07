@@ -1,0 +1,84 @@
+#!/bin/bash
+
+echo CTEST_FULL_OUTPUT
+
+num_stages=${PATH64_BOOTSTRAP_STAGES}
+
+currdir=${CMAKE_CURRENT_BINARY_DIR}
+srcdir=${CMAKE_SOURCE_DIR}
+final_inst_dir=$currdir/final_inst
+stage=0
+CC=pathcc
+CXX=pathCC
+FORT=pathf90
+
+OLD_PATH=$PATH
+export PATH=${CMAKE_BINARY_DIR}/Xcompiler/bin:$PATH
+
+cd $currdir
+
+rm -rf build inst stage?
+
+while [ $stage -lt $num_stages ]; do
+    mkdir build
+    cd build
+    ${CMAKE_COMMAND} -D CMAKE_BUILD_TYPE=Release \
+                     -D CMAKE_INSTALL_PREFIX=$final_inst_dir \
+                     -D PATH64_ENABLE_FORTRAN=${PATH64_ENABLE_FORTRAN} \
+                     -D PATH64_ENABLE_PROFILING=${PATH64_ENABLE_PROFILING} \
+                     -D PATH64_ENABLE_OPENMP=${PATH64_ENABLE_OPENMP} \
+                     -D PATH64_ENABLE_MULTILIB=${PATH64_ENABLE_MULTILIB} \
+                     -D PATH64_ENABLE_VALGRIND=${PATH64_ENABLE_VALGRIND} \
+                     -D PATH64_ENABLE_HUGEPAGES=${PATH64_ENABLE_HUGEPAGES} \
+                     -D PATH64_ENABLE_MATHLIBS=${PATH64_ENABLE_MATHLIBS} \
+                     -D X86_WHIRL_OBJECTS=${X86_WHIRL_OBJECTS} \
+                     -D FAT_WHIRL_OBJECTS=${FAT_WHIRL_OBJECTS} \
+                     -D PATH64_ENABLE_PSCRUNTIME=${PATH64_ENABLE_PSCRUNTIME} \
+                     -D PATH64_BUILD_32=${PATH64_BUILD_32} \
+                     -D CMAKE_SKIP_RPATH=${CMAKE_SKIP_RPATH} \
+                     -D PATH64_ENABLE_TARGETS="${PATH64_ENABLE_TARGETS}" \
+                     -D CMAKE_SKIP_RPATH=ON \
+                     -D CMAKE_C_COMPILER=$CC \
+                     -D CMAKE_CXX_COMPILER=$CXX \
+                     -D CMAKE_Fortran_COMPILER=$FORT \
+                     -D PATH64_COMPILER_SOURCE=${PATH64_COMPILER_SOURCE} \
+                     -D PATH64_COMPILER_RT_SOURCE=${PATH64_COMPILER_RT_SOURCE} \
+                     -D PATH64_LIBUNWIND_SOURCE=${PATH64_LIBUNWIND_SOURCE} \
+                     -D PATH64_LIBCXXRT_SOURCE=${PATH64_LIBCXXRT_SOURCE} \
+                     -D PATH64_GPUASM_SOURCE=${PATH64_GPUASM_SOURCE} \
+                     -D PATH64_LIBSTDCXX_SOURCE=${PATH64_LIBSTDCXX_SOURCE} \
+                     -D PATH64_ENABLE_PATHAS=${PATH64_ENABLE_PATHAS} \
+                     -D PATH64_LIBDWARF_SOURCE=${PATH64_LIBDWARF_SOURCE} \
+                     ${targ_opts} \
+                     $srcdir > cmake.out 2>&1
+    ${CMAKE_MAKE_PROGRAM} -j${PATH64_BOOTSTRAP_CORES}
+    if [ $? -ne 0 ]; then
+	stage=`expr $stage + 1`
+	echo Build failed during stage $stage
+	exit 1
+    fi
+    cd ..
+    if [ -d inst ]; then
+	mv inst stage$stage
+    fi
+    mv build inst
+    if [ $stage -eq 0 ]; then
+	# Set PATH for the second and later stages
+	PATH=$currdir/inst/Xcompiler/bin:$OLD_PATH
+    fi
+    pstage=$stage
+    stage=`expr $stage + 1`
+    if [ -d stage$pstage ]; then
+	rm -f cmp.s$pstage.s$stage.out
+	cd stage$pstage
+	for i in `find . -name \*.o`; do
+	    cmp $i ../inst/$i 16 16 > /dev/null 2>&1
+	    cmpret=$?
+	    if [ $cmpret -eq 1 ]; then
+		echo warning: $i differs >> ../cmp.s$pstage.s$stage.out
+	    fi
+	done
+	cd ..
+    fi
+done
+

@@ -1,0 +1,21 @@
+
+Step 1) cd to the compiler dir
+
+Step 2)
+# You can use git submodule init or manually clone the repo
+# adjust these url as needed depending on how you want to clone
+
+git clone git@github.com:/path64/compiler.git
+git clone git@github.com:/pathscale/compiler-rt.git
+git clone git@github.com:/path64/assembler.git
+git clone git@github.com:/pathscale/libcxxrt.git
+git clone git@github.com:/pathscale/libdwarf-bsd.git
+git clone git@github.com:/pathscale/libunwind.git
+git clone git@github.com:/path64/debugger.git pathdb
+git clone git@github.com:/pathscale/stdcxx.git
+
+Step 3) Run ./configure or ./configure-releaese script from the top level
+
+Step 4) cd build or buildrelease
+
+Step 5) make # Parallel builds tested up to -j30

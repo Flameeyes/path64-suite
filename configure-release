@@ -1,0 +1,85 @@
+#! /bin/sh
+
+set -e
+
+curdir=`pwd`
+base=$(cd $(dirname $0) && pwd)
+src=$base
+
+while [ "${1#-}" != "$1" ]; do
+    opt=$1
+    shift
+    case $opt in
+        --prefix=*) prefix=${opt#*=} ;;
+        --src=*)    src=${opt#*=}    ;;
+        -t)         target=$1; shift ;;
+        -u)         update=y         ;;
+        -n)         run=echo         ;;
+        -j*)        make_j=$opt      ;;
+    esac
+done
+
+if [ "$update" = y ]; then
+    $base/update
+fi
+# TODO - Remove any dependency on gcc to get information
+cross=${target:+${target}-}
+machine=$(${cross}gcc -dumpmachine)
+gcc=${machine}-gcc
+prefix=${prefix:-/opt/path64_release}
+
+if [ -z "$buildrelease" ]; then
+    buildrelease=$curdir/buildrelease
+fi
+
+$run mkdir -p $buildrelease
+$run cd $buildrelease
+
+case $machine in
+    mips64*)        targets='mips_32=-mabi=n32 mips_64=-mabi=64' ;;
+    x86*64*|amd64*) targets='x86_64=-m64'            ;;
+    *)              echo "Unsupported machine $machine"; exit 1  ;;
+esac
+
+for t in $targets; do
+    name=${t%%=*}
+    flags=${t#$name}
+    flags=${flags#=}
+    path64_targets="${path64_targets:+${path64_targets};}$name"
+    libgcc=$($gcc $flags -print-libgcc-file-name)
+    crt=$($gcc $flags -print-file-name=crt1.o)
+    gcclib=$(dirname ${libgcc})
+    gcccrt=$(dirname ${crt})
+    ld_so=$($gcc $flags --help -v 2>&1 >/dev/null |
+            awk '/-dynamic-linker/ { match($0, "-dynamic-linker +[^ ]+");
+                                     print substr($0, RSTART+16, RLENGTH-16) }')
+    PATH64_DEFS="$PATH64_DEFS
+      -DPSC_CRT_PATH_${name}=${gcccrt}
+      -DPSC_CRTBEGIN_PATH_${name}=${gcclib}
+      -DPSC_DYNAMIC_LINKER_${name}=${ld_so}
+    "
+done
+
+if [ -n "${target}" ]; then
+    psc_target="-DPSC_TARGET=${machine}"
+fi
+
+$run cmake -DCMAKE_INSTALL_PREFIX=$prefix                    \
+           -DCMAKE_BUILD_TYPE=Release				\
+           ${psc_target}                                     \
+           -DPATH64_ENABLE_TARGETS="$path64_targets"         \
+           ${PATH64_DEFS}                                    \
+           -DPATH64_ENABLE_PROFILING=ON                      \
+           -DPATH64_ENABLE_FORTRAN=ON                        \
+           -DPATH64_ENABLE_MATHLIBS=ON                       \
+           -DPATH64_ENABLE_OPENMP=ON                         \
+           -DPATH64_ENABLE_PATHOPT2=OFF                       \
+           -DCMAKE_C_COMPILER=pathcc            \
+           -DCMAKE_CXX_COMPILER=pathCC                  \
+           $src
+
+makefile=$curdir/Makefile
+echo ".PHONY: all\nall:\n\tcd buildrelease; \${MAKE}\n" > $makefile
+echo ".PHONY: install\ninstall:\n\tcd buildrelease; \${MAKE} install" >> $makefile
+echo ".PHONY: test\ntest:\n\tcd buildrelease; \${MAKE} test" >> $makefile
+

@@ -1,0 +1,16 @@
+export PATH=${PATH64_STAGE_DIR}/bin:$PATH
+export LD_LIBRARY_PATH=${PATH64_STAGE_DIR}/lib/${CURRENT_TARG_ARCH}/${CURRENT_TARG_ABI}:$LD_LIBRARY_PATH
+
+# configuring libstdcxx
+if cd ${PATH64_LIBSTDCXX_SOURCE}
+then
+	export CFLAGS=${CURRENT_TARG_FLAGS}
+	export CXXFLAGS=${CURRENT_TARG_FLAGS}
+	export LDFLAGS=${CURRENT_TARG_FLAGS}
+	/bin/sh -c "${CMAKE_MAKE_PROGRAM} MAKEFLAGS= BUILDDIR=${CMAKE_CURRENT_BINARY_DIR}/__build-${CURRENT_TARG} BUILDTYPE=8s CONFIG=pathcc.config config"
+        res=$?
+        exit $res
+fi
+
+exit 1
+

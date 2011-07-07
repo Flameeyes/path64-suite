@@ -1,0 +1,7 @@
+
+
+set(PATH64_PATH "${PATH64_COMPILER_SOURCE}")
+set(PATH64_BUILD_PATH "${PATH64_STAGE_DIR}")
+
+add_subdirectory("${PATH64_LIBDWARF_SOURCE}" build)
+
