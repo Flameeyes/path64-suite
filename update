@@ -3,5 +3,11 @@
 base=$(cd $(dirname $0) && pwd)
 src=$base
 
-(cd $src ; git submodule update --init)
+for mod in $src/compiler/*; do
+(
+	cd $src/compiler/$mod
+	git remote update
+	git pull
+)
+done
 

@@ -1,0 +1,17 @@
+#!/bin/sh
+base=$(cd $(dirname $0) && pwd)
+src=$base
+
+mkdir -p $src/compiler
+(
+	cd $src
+	for mod in compiler-rt libcxxrt libdwarf-bsd libunwind stdcxx; do
+		git clone git://github.com/pathscale/${mod}.git compiler/${mod}
+	done
+
+	for mod in compiler assembler; do
+		git clone git://github.com/path64/${mod}.git compiler/${mod}
+	done
+
+	git clone git://github.com/path64/debugger.git compiler/pathdb
+)
