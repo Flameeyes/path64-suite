@@ -5,7 +5,7 @@ src=$base
 
 for mod in $src/compiler/*; do
 (
-	cd $src/compiler/$mod
+	cd $mod
 	git remote update
 	git pull
 )
