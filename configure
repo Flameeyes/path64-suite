@@ -65,7 +65,7 @@ if [ -n "${target}" ]; then
 fi
 
 $run cmake -DCMAKE_INSTALL_PREFIX=$prefix                    \
-           -DCMAKE_BUILD_TYPE=Debug                          \
+           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:Debug}      \
            ${psc_target}                                     \
            -DPATH64_ENABLE_TARGETS="$path64_targets"         \
            ${PATH64_DEFS}                                    \
