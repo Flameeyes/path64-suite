@@ -179,6 +179,10 @@ path64_set_multitarget_property_(stdcxx COMPILE_FLAGS
         "-fPIC -nostdinc++ -D_RWSTD_POSIX_THREADS -pthread ${incl_dir_flags}")
 path64_set_multitarget_property_(stdcxx OUTPUT_NAME "stl")
 path64_set_multitarget_property_(stdcxx LINK_FLAGS "-nodefaultlibs")
+# XXX libstdcxx pulls in __isfinite() and __signbit() from libm.
+if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+    path64_multitarget_link_libraries(stdcxx m)
+endif()
 path64_add_multitarget_library(stdcxx SHARED)
 path64_add_multitarget_multitarget_dependencies(stdcxx compiler-rt cxxrt unwind)
 path64_add_dependencies_from_multitarget(compiler-stage-libs-CXX stdcxx)
