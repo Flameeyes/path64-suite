@@ -96,17 +96,17 @@ if(PSC_TARGET AND NOT PATH64_ENABLE_TARGETS)
 	message(STATUS "Detected PATH64_ENABLE_TARGETS as '${PATH64_ENABLE_TARGETS}'")
 endif()
 
+# Table of flags to use for targets
+set(TARGET_FLAGS_mips_32 "-mabi=n32")
+set(TARGET_FLAGS_mips_64 "-mabi=32")
+set(TARGET_FLAGS_x86_64 "-m64")
+
 # If we have targets, each one of them should have some additional variables
 if(PATH64_ENABLE_TARGETS)
 	# Check all enabled targets
 	foreach(TARGET_NAME ${PATH64_ENABLE_TARGETS})
-		if(TARGET_NAME STREQUAL "mips_32")
-			set(TARGET_FLAGS "-mabi=n32")
-		elseif(TARGET_NAME STREQUAL "mips_64")
-			set(TARGET_FLAGS "-mabi=64")
-		elseif(TARGET_NAME STREQUAL "x86_64")
-			set(TARGET_FLAGS "-m64")
-		else()
+		set(TARGET_FLAGS ${TARGET_FLAGS_${TARGET_NAME}})
+		if(NOT TARGET_FLAGS)
 			message(FATAL_ERROR "Don't know what flags to use for target '${TARGET_NAME}'")
 		endif()
 
