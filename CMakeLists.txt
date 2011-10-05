@@ -84,6 +84,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "PathScale" AND "${CMAKE_BUILD_TYPE}" STREQ
     set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} ${linker_flags}")
 endif()
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/DetectDefaults.cmake)
 
 set(source_file "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/hash-style.c")
 file(WRITE "${source_file}" "#include <stdio.h>
