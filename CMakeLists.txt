@@ -38,6 +38,10 @@ option(PATH64_ENABLE_OPENMP "Enables OpenMP" ON)
 option(PATH64_ENABLE_PATHOPT2 "Enables 'PATHOPT2'" OFF)
 
 
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND (NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "PathScale"))
+	message(WARNING "Building in Release mode with a non-PathScale compiler (${CMAKE_C_COMPILER_ID}) is not supported and probably won't work!")
+endif()
+
 set(BUILD_PSCLANG FALSE)
 
 function(check_directory var_name desc def_val)
