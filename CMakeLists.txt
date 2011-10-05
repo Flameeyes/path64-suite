@@ -31,6 +31,12 @@ option(PATH64_ENABLE_PSCRUNTIME "Enables pathscale runtime libraries" ON)
 option(PATH64_BUILD_STDCXX "Enables building stdcxx library" ON)
 option(PATH64_ENABLE_TESTING "Enables ekopath-suite testing" ON)
 option(PATH64_ENABLE_CXX "Enables C++" ON)
+option(PATH64_ENABLE_PROFILING "Enables profiling" ON)
+option(PATH64_ENABLE_FORTRAN "Enables Fortran" ON)
+option(PATH64_ENABLE_MATHLIBS "Enables math libraries" ON)
+option(PATH64_ENABLE_OPENMP "Enables OpenMP" ON)
+option(PATH64_ENABLE_PATHOPT2 "Enables 'PATHOPT2'" OFF)
+
 
 set(BUILD_PSCLANG FALSE)
 
