@@ -79,7 +79,13 @@ $run cmake -DCMAKE_INSTALL_PREFIX=$prefix                    \
            $src
 
 makefile=$curdir/Makefile
-echo ".PHONY: all\nall:\n\tcd buildrelease; \${MAKE}\n" > $makefile
-echo ".PHONY: install\ninstall:\n\tcd buildrelease; \${MAKE} install" >> $makefile
-echo ".PHONY: test\ntest:\n\tcd buildrelease; \${MAKE} test" >> $makefile
+cat - > $makefile <<EOF
+# make this the default
+all:
+	\$(MAKE) -C buildrelease \$@
 
+install test:
+	\$(MAKE) -C buildrelease \$@
+
+.PHONY: all install test
+EOF
