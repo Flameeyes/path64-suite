@@ -20,6 +20,24 @@ if("${CMAKE_GENERATOR}" MATCHES "Makefiles" AND NOT CMAKE_BUILD_TYPE)
 	endif()
 endif()
 
+if(WIN32)
+	# Default to no PSCRUNTIME and STDCXX because of missing stdcxx config
+	option(PATH64_ENABLE_PSCRUNTIME "Enables pathscale runtime libraries" OFF)
+	option(PATH64_BUILD_STDCXX "Enables building stdcxx library" OFF)
+	
+	# Not sure why these default to off for Windows
+	option(PATH64_ENABLE_FORTRAN "Enables Fortran" OFF)
+	option(PATH64_ENABLE_MATHLIBS "Enables math libraries" OFF)
+	option(PATH64_ENABLE_IPA "Build IPA or not" OFF)
+	
+	# not sure why this defaults to on for windows
+	option(PATH64_USE_SYSTEM_COMPILER_FOR_TARGET_LIBS "" ON)
+
+	# default architecture
+	if(NOT PATH64_ENABLE_TARGETS)
+		set(PATH64_ENABLE_TARGETS "x86_64" CACHE STRING "Architecture to build for.")
+	endif()
+endif()
 
 MESSAGE(STATUS "Version is set to "${PSC_FULL_VERSION})
 string(REGEX REPLACE "^([0-9.]+).*$" "\\1" TMPVERSION ${PSC_FULL_VERSION})
