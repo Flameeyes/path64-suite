@@ -2,7 +2,7 @@
 option(BUILD_TESTS "BUILD_TESTS" OFF)
 option(BUILD_STATIC "BUILD_STATIC" ON)
 option(INSTALL_GPUASM "Install gpuasm" OFF)
-add_subdirectory(${PATH64_GPUASM_SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/__build)
+add_subdirectory(${PATH64_ASSEMBLER_SOURCE} ${CMAKE_CURRENT_BINARY_DIR}/__build)
 
 add_custom_command(OUTPUT ${PATH64_STAGE_DIR}/bin/pathas
                    COMMAND ${CMAKE_COMMAND} -E copy
