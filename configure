@@ -65,7 +65,7 @@ if [ -n "${target}" ]; then
 fi
 
 $run cmake -DCMAKE_INSTALL_PREFIX=$prefix                    \
-           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:Debug}      \
+           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Debug}      \
            ${psc_target}                                     \
            -DPATH64_ENABLE_TARGETS="$path64_targets"         \
            ${PATH64_DEFS}                                    \
@@ -74,10 +74,18 @@ $run cmake -DCMAKE_INSTALL_PREFIX=$prefix                    \
            -DPATH64_ENABLE_MATHLIBS=ON                       \
            -DPATH64_ENABLE_OPENMP=ON                         \
            -DPATH64_ENABLE_PATHOPT2=OFF                       \
+           -DCMAKE_C_COMPILER=${CC:-`which pathcc`}          \
+           -DCMAKE_CXX_COMPILER=${CXX:-`which pathCC`}       \
            $src
 
 makefile=$curdir/Makefile
-echo ".PHONY: all\nall:\n\tcd build; \${MAKE}\n" > $makefile
-echo ".PHONY: install\ninstall:\n\tcd build; \${MAKE} install" >> $makefile
-echo ".PHONY: test\ntest:\n\tcd build; \${MAKE} test" >> $makefile
+cat - > $makefile <<EOF
+# make this the default
+all:
+	\$(MAKE) -C build \$@
 
+install test:
+	\$(MAKE) -C build \$@
+
+.PHONY: all install test
+EOF
