@@ -13,6 +13,13 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
   set(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT FALSE)
 endif()
 
+if("${CMAKE_GENERATOR}" MATCHES "Makefiles" AND NOT CMAKE_BUILD_TYPE)
+	if(NOT __DEFAULT_BUILD_TYPE_SET)
+		set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "" FORCE)
+		set(__DEFAULT_BUILD_TYPE_SET YES CACHE INTERNAL "")
+	endif()
+endif()
+
 
 MESSAGE(STATUS "Version is set to "${PSC_FULL_VERSION})
 string(REGEX REPLACE "^([0-9.]+).*$" "\\1" TMPVERSION ${PSC_FULL_VERSION})
@@ -24,6 +31,16 @@ option(PATH64_ENABLE_PSCRUNTIME "Enables pathscale runtime libraries" ON)
 option(PATH64_BUILD_STDCXX "Enables building stdcxx library" ON)
 option(PATH64_ENABLE_TESTING "Enables ekopath-suite testing" ON)
 option(PATH64_ENABLE_CXX "Enables C++" ON)
+option(PATH64_ENABLE_PROFILING "Enables profiling" ON)
+option(PATH64_ENABLE_FORTRAN "Enables Fortran" ON)
+option(PATH64_ENABLE_MATHLIBS "Enables math libraries" ON)
+option(PATH64_ENABLE_OPENMP "Enables OpenMP" ON)
+option(PATH64_ENABLE_PATHOPT2 "Enables 'PATHOPT2'" OFF)
+
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" AND (NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "PathScale"))
+	message(WARNING "Building in Release mode with a non-PathScale compiler (${CMAKE_C_COMPILER_ID}) is not supported and probably won't work!")
+endif()
 
 set(BUILD_PSCLANG FALSE)
 
@@ -71,6 +88,7 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "PathScale" AND "${CMAKE_BUILD_TYPE}" STREQ
     set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} ${linker_flags}")
 endif()
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/DetectDefaults.cmake)
 
 set(source_file "${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/hash-style.c")
 file(WRITE "${source_file}" "#include <stdio.h>
