@@ -3,10 +3,21 @@ Step 1) Run ./initial-clone from the top level
 
 Step 2) Add additional remotes, if desired, to the repositories inside compiler/
 
-Step 3) Run ./configure or ./configure-release script from the top level
+Step 3) Create your build directory, such as `mybuild`
 
-Step 4) cd build or buildrelease
+Step 4) `cd mybuild` with your chosen build directory
 
-Step 5) make # Parallel builds tested up to -j30
+Step 5) Run `cmake ..` with your desired options, for instance:
+
+        * `-DCMAKE_BUILD_TYPE=Debug` or `-DCMAKE_BUILD_TYPE=Release`
+          to choose the type of build
+
+        * `-DCMAKE_INSTALL_PREFIX=$HOME/prefix` to install in a local
+          tree.
+
+        * `-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++` to change
+          the compiler used.
+
+Step 6) make # Parallel builds tested up to -j30
 
 Running ./update will pull all cloned repositories in compiler.
